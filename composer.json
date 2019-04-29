@@ -48,8 +48,16 @@
     "extra": {
         "laravel": {
             "providers": [
-                "\\InfyOm\\Generator\\InfyOmGeneratorServiceProvider"
-            ]
+                "\\InfyOm\\Generator\\InfyOmGeneratorServiceProvider",
+                "Collective\\Html\\HtmlServiceProvider",
+                "Laracasts\\Flash\\FlashServiceProvider",
+                "Prettus\\Repository\\Providers\\RepositoryServiceProvider"
+           ],
+            "aliases": {
+                "Form": "Collective\\Html\\FormFacade",
+                "Html": "Collective\\Html\\HtmlFacade",
+                "Flash": "Laracasts\\Flash\\Flash"
+           }
         }
-    }    
+    }
 }
