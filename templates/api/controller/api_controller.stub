@@ -6,54 +6,65 @@ use $NAMESPACE_API_REQUEST$\Create$MODEL_NAME$APIRequest;
 use $NAMESPACE_API_REQUEST$\Update$MODEL_NAME$APIRequest;
 use $NAMESPACE_MODEL$\$MODEL_NAME$;
 use $NAMESPACE_REPOSITORY$\$MODEL_NAME$Repository;
+use App\Presenters\$MODEL_NAME$Presenter;
 use Illuminate\Http\Request;
 use $NAMESPACE_APP$\Http\Controllers\AppBaseController;
 use Response;
+use Illuminate\Http\Response as ResponseCode;
+
 
 $DOC_CONTROLLER$
 class $MODEL_NAME$APIController extends AppBaseController
 {
-    /** @var  $MODEL_NAME$Repository */
-    private $$MODEL_NAME_CAMEL$Repository;
 
-    public function __construct($MODEL_NAME$Repository $$MODEL_NAME_CAMEL$Repo)
+    /**
+     * @var $MODEL_NAME$Repository
+     */
+    private $repository;
+    /**
+     * @var $MODEL_NAME$Presenter
+     */
+    private $presenter;
+
+
+    public function __construct($MODEL_NAME$Repository $repository, $MODEL_NAME$Presenter $presenter)
     {
-        $this->$MODEL_NAME_CAMEL$Repository = $$MODEL_NAME_CAMEL$Repo;
+        $this->repository = $repository;
+        $this->presenter = $presenter;
     }
 
     $DOC_INDEX$
     public function index(Request $request)
     {
-        $$MODEL_NAME_PLURAL_CAMEL$ = $this->$MODEL_NAME_CAMEL$Repository->all(
-            $request->except(['skip', 'limit']),
-            $request->get('skip'),
-            $request->get('limit')
-        );
+        $$MODEL_NAME_PLURAL_CAMEL$ = $this->repository->setPresenter($this->presenter)->paginate();
 
-        return $this->sendResponse($$MODEL_NAME_PLURAL_CAMEL$->toArray(), '$MODEL_NAME_PLURAL_HUMAN$ retrieved successfully');
+        return $this->sendResponse($$MODEL_NAME_PLURAL_CAMEL$, '$MODEL_NAME_PLURAL_HUMAN$s carregado com sucesso');
     }
 
     $DOC_STORE$
     public function store(Create$MODEL_NAME$APIRequest $request)
     {
+
         $input = $request->all();
 
-        $$MODEL_NAME_CAMEL$ = $this->$MODEL_NAME_CAMEL$Repository->create($input);
+        $$MODEL_NAME_CAMEL$ = $this->repository->setPresenter($this->presenter)->create($input);
 
-        return $this->sendResponse($$MODEL_NAME_CAMEL$->toArray(), '$MODEL_NAME_HUMAN$ saved successfully');
+        return $this->sendResponse($$MODEL_NAME_CAMEL$, '$MODEL_NAME_HUMAN$ salvo com sucesso',ResponseCode::HTTP_CREATED);
     }
 
     $DOC_SHOW$
     public function show($id)
     {
-        /** @var $MODEL_NAME$ $$MODEL_NAME_CAMEL$ */
-        $$MODEL_NAME_CAMEL$ = $this->$MODEL_NAME_CAMEL$Repository->find($id);
 
-        if (empty($$MODEL_NAME_CAMEL$)) {
-            return $this->sendError('$MODEL_NAME_HUMAN$ not found');
+        /** @var $$MODEL_NAME_CAMEL$ $$MODEL_NAME_CAMEL$ */
+        $$MODEL_NAME_CAMEL$ = $this->repository->setPresenter($this->presenter)->find($id);
+
+        if (is_null($$MODEL_NAME_CAMEL$)) {
+            return $this->sendError('NOT_FOUND',ResponseCode::HTTP_NOT_FOUND);
+        } else {
+            return $this->sendResponse($$MODEL_NAME_CAMEL$, 'DONE');
         }
 
-        return $this->sendResponse($$MODEL_NAME_CAMEL$->toArray(), '$MODEL_NAME_HUMAN$ retrieved successfully');
     }
 
     $DOC_UPDATE$
@@ -62,29 +73,30 @@ class $MODEL_NAME$APIController extends AppBaseController
         $input = $request->all();
 
         /** @var $MODEL_NAME$ $$MODEL_NAME_CAMEL$ */
-        $$MODEL_NAME_CAMEL$ = $this->$MODEL_NAME_CAMEL$Repository->find($id);
+        $$MODEL_NAME_CAMEL$ = $this->repository->find($id);
 
         if (empty($$MODEL_NAME_CAMEL$)) {
-            return $this->sendError('$MODEL_NAME_HUMAN$ not found');
+            return $this->sendError('NOT_FOUND',ResponseCode::HTTP_NOT_FOUND);
         }
 
-        $$MODEL_NAME_CAMEL$ = $this->$MODEL_NAME_CAMEL$Repository->update($input, $id);
+        $$MODEL_NAME_CAMEL$ = $this->repository->setPresenter($this->presenter)->update($input, $id);
 
-        return $this->sendResponse($$MODEL_NAME_CAMEL$->toArray(), '$MODEL_NAME$ updated successfully');
+        return $this->sendResponse($$MODEL_NAME_CAMEL$, 'DONE');
     }
 
     $DOC_DESTROY$
     public function destroy($id)
     {
+
         /** @var $MODEL_NAME$ $$MODEL_NAME_CAMEL$ */
-        $$MODEL_NAME_CAMEL$ = $this->$MODEL_NAME_CAMEL$Repository->find($id);
+        $$MODEL_NAME_CAMEL$ = $this->repository->find($id);
 
         if (empty($$MODEL_NAME_CAMEL$)) {
-            return $this->sendError('$MODEL_NAME_HUMAN$ not found');
+            return $this->sendError('Faq not found');
         }
 
         $$MODEL_NAME_CAMEL$->delete();
 
-        return $this->sendResponse($id, '$MODEL_NAME_HUMAN$ deleted successfully');
+        return $this->sendResponse([], 'Faq deletado com sucesso',ResponseCode::HTTP_NO_CONTENT);
     }
 }
